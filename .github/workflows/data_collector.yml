@@ -1,0 +1,32 @@
+name: Daily Football Data Collection
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # Стартира всеки ден в полунощ по UTC
+
+jobs:
+  collect_data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          pip install pandas requests beautifulsoup4
+
+      - name: Run data collector
+        run: python data_collector.py
+
+      - name: Commit updated data
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add football_data.csv
+          git commit -m "Daily data update"
+          git push
